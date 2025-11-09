@@ -1,1 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rectangle to Square Dissection</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            color: #333;
+        }
+
+        h1 {
+            color: white;
+            margin-bottom: 10px;
+            text-align: center;
+            font-size: 2em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            color: #f0f0f0;
+            margin-bottom: 30px;
+            text-align: center;
+            font-size: 1.1em;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 1000px;
+            width: 100%;
+        }
+
+        .canvas-wrapper {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+            min-height: 450px;
+        }
+
+        canvas {
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            background: #fafafa;
+            cursor: pointer;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        button {
+            padding: 12px 30px;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        button.primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        button.primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+        }
+
+        button.secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        button.secondary:hover {
+            background: #e0e0e0;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .info-panel {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border-left: 4px solid #667eea;
+        }
+
+        .info-panel h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .info-panel p {
+            line-height: 1.6;
+            color: #555;
+            margin-bottom: 8px;
+        }
+
+        .state-indicator {
+            text-align: center;
+            font-size: 1.2em;
+            color: #667eea;
+            font-weight: 600;
+            margin-bottom: 20px;
+            min-height: 30px;
+        }
+
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+
+        .speed-control label {
+            font-weight: 600;
+            color: #555;
+        }
+
+        .speed-control input[type="range"] {
+            width: 200px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Rectangle to Square Dissection Puzzle</h1>
+    <div class="subtitle">Transform a 4×9 cm rectangle into a 6×6 cm square with one cut!</div>
+
+    <div class="container">
+        <div class="state-indicator" id="stateText">Step 1: Original 4×9 cm Rectangle</div>
+
+        <div class="canvas-wrapper">
+            <canvas id="canvas" width="800" height="400"></canvas>
+        </div>
+
+        <div class="controls">
+            <button class="primary" id="nextBtn" onclick="nextStep()">Next Step</button>
+            <button class="secondary" id="prevBtn" onclick="prevStep()">Previous Step</button>
+            <button class="secondary" onclick="reset()">Reset</button>
+            <button class="primary" id="animateBtn" onclick="toggleAnimation()">Auto Play</button>
+        </div>
+
+        <div class="speed-control">
+            <label for="speedSlider">Animation Speed:</label>
+            <input type="range" id="speedSlider" min="0.5" max="3" step="0.5" value="1">
+            <span id="speedValue">1x</span>
+        </div>
+
+        <div class="info-panel">
+            <h3>How It Works</h3>
+            <p><strong>Problem:</strong> Cut a 4 cm × 9 cm rectangle (area = 36 cm²) into exactly 2 pieces and rearrange them into a 6 cm × 6 cm square (area = 36 cm²).</p>
+            <p><strong>Solution:</strong> Make a diagonal cut from point (6, 0) to point (9, 4). This creates a 6×4 rectangle and a 3×4 right triangle.</p>
+            <p><strong>Assembly:</strong> Rotate the triangle 90° counterclockwise and place it adjacent to the rectangle to form a perfect 6×6 square!</p>
+            <p><strong>Tip:</strong> Click "Next Step" to see the transformation, or use "Auto Play" for a continuous animation.</p>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const scale = 40; // pixels per cm
+
+        let currentStep = 0;
+        let animating = false;
+        let animationProgress = 0;
+        let animationId = null;
+        let speedMultiplier = 1;
+
+        const speedSlider = document.getElementById('speedSlider');
+        const speedValue = document.getElementById('speedValue');
+
+        speedSlider.addEventListener('input', (e) => {
+            speedMultiplier = parseFloat(e.target.value);
+            speedValue.textContent = speedMultiplier + 'x';
+        });
+
+        // Define the two pieces
+        // Piece 1: Rectangle from (0,0) to (6,4)
+        const piece1 = {
+            points: [[0, 0], [6, 0], [6, 4], [0, 4]],
+            color: '#3498db',
+            label: 'Piece 1 (6×4 cm)'
+        };
+
+        // Piece 2: Triangle (6,0), (9,0), (9,4)
+        const piece2 = {
+            points: [[6, 0], [9, 0], [9, 4]],
+            color: '#e74c3c',
+            label: 'Piece 2 (Triangle)'
+        };
+
+        const steps = [
+            {
+                name: 'Step 1: Original 4×9 cm Rectangle',
+                pieces: [
+                    { points: [[0, 0], [6, 0], [6, 4], [0, 4]], color: '#3498db', offset: [0, 0], rotation: 0 },
+                    { points: [[6, 0], [9, 0], [9, 4]], color: '#e74c3c', offset: [0, 0], rotation: 0 }
+                ],
+                showCutLine: true,
+                description: 'A 4 cm × 9 cm rectangle with area 36 cm²'
+            },
+            {
+                name: 'Step 2: Cut Along the Diagonal',
+                pieces: [
+                    { points: [[0, 0], [6, 0], [6, 4], [0, 4]], color: '#3498db', offset: [0, 0], rotation: 0 },
+                    { points: [[6, 0], [9, 0], [9, 4]], color: '#e74c3c', offset: [0, 0], rotation: 0 }
+                ],
+                showCutLine: true,
+                highlight: true,
+                description: 'Cut from (6,0) to (9,4)'
+            },
+            {
+                name: 'Step 3: Separate the Pieces',
+                pieces: [
+                    { points: [[0, 0], [6, 0], [6, 4], [0, 4]], color: '#3498db', offset: [0, 0], rotation: 0 },
+                    { points: [[6, 0], [9, 0], [9, 4]], color: '#e74c3c', offset: [1.5, -1], rotation: 0 }
+                ],
+                showCutLine: false,
+                description: 'Pull the pieces apart'
+            },
+            {
+                name: 'Step 4: Rotate the Triangle',
+                pieces: [
+                    { points: [[0, 0], [6, 0], [6, 4], [0, 4]], color: '#3498db', offset: [0, 1], rotation: 0 },
+                    { points: [[6, 0], [9, 0], [9, 4]], color: '#e74c3c', offset: [3, -1], rotation: -90 }
+                ],
+                showCutLine: false,
+                description: 'Rotate triangle 90° counterclockwise'
+            },
+            {
+                name: 'Step 5: Form the 6×6 cm Square',
+                pieces: [
+                    { points: [[0, 0], [6, 0], [6, 4], [0, 4]], color: '#3498db', offset: [0, 1], rotation: 0 },
+                    { points: [[6, 0], [9, 0], [9, 4]], color: '#e74c3c', offset: [0, 1], rotation: -90 }
+                ],
+                showCutLine: false,
+                showSquareOutline: true,
+                description: 'Perfect 6×6 cm square (area = 36 cm²)!'
+            }
+        ];
+
+        function rotatePoint(point, angle, origin = [0, 0]) {
+            const rad = angle * Math.PI / 180;
+            const cos = Math.cos(rad);
+            const sin = Math.sin(rad);
+            const x = point[0] - origin[0];
+            const y = point[1] - origin[1];
+            return [
+                cos * x - sin * y + origin[0],
+                sin * x + cos * y + origin[1]
+            ];
+        }
+
+        function interpolate(start, end, progress) {
+            return start + (end - start) * progress;
+        }
+
+        function drawPiece(points, color, offset, rotation, alpha = 1) {
+            ctx.save();
+            ctx.globalAlpha = alpha;
+
+            // Calculate centroid for rotation
+            const centroid = points.reduce((acc, p) => [acc[0] + p[0], acc[1] + p[1]], [0, 0])
+                                 .map(v => v / points.length);
+
+            // Apply transformations
+            const transformedPoints = points.map(p => {
+                let tp = rotatePoint(p, rotation, centroid);
+                return [
+                    (tp[0] + offset[0]) * scale,
+                    (tp[1] + offset[1]) * scale
+                ];
+            });
+
+            // Draw filled shape
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.moveTo(transformedPoints[0][0], transformedPoints[0][1]);
+            for (let i = 1; i < transformedPoints.length; i++) {
+                ctx.lineTo(transformedPoints[i][0], transformedPoints[i][1]);
+            }
+            ctx.closePath();
+            ctx.fill();
+
+            // Draw outline
+            ctx.strokeStyle = '#2c3e50';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            ctx.restore();
+        }
+
+        function drawCutLine() {
+            ctx.save();
+            ctx.strokeStyle = '#f39c12';
+            ctx.lineWidth = 3;
+            ctx.setLineDash([10, 5]);
+            ctx.beginPath();
+            ctx.moveTo(6 * scale, 0);
+            ctx.lineTo(9 * scale, 4 * scale);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.restore();
+        }
+
+        function drawSquareOutline() {
+            ctx.save();
+            ctx.strokeStyle = '#27ae60';
+            ctx.lineWidth = 4;
+            ctx.setLineDash([15, 8]);
+            ctx.strokeRect(0, 1 * scale, 6 * scale, 6 * scale);
+            ctx.setLineDash([]);
+
+            // Add dimension labels
+            ctx.fillStyle = '#27ae60';
+            ctx.font = 'bold 16px Arial';
+            ctx.fillText('6 cm', 2.5 * scale, 0.7 * scale);
+            ctx.fillText('6 cm', -0.8 * scale, 4 * scale);
+
+            ctx.restore();
+        }
+
+        function drawGrid() {
+            ctx.save();
+            ctx.strokeStyle = '#ecf0f1';
+            ctx.lineWidth = 1;
+
+            // Draw grid lines
+            for (let i = 0; i <= 10; i++) {
+                ctx.beginPath();
+                ctx.moveTo(i * scale, 0);
+                ctx.lineTo(i * scale, 10 * scale);
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.moveTo(0, i * scale);
+                ctx.lineTo(10 * scale, i * scale);
+                ctx.stroke();
+            }
+            ctx.restore();
+        }
+
+        function render(step, progress = 1) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.save();
+            ctx.translate(150, 50);
+
+            drawGrid();
+
+            const currentStepData = steps[step];
+            const nextStepData = steps[Math.min(step + 1, steps.length - 1)];
+
+            // Interpolate between current and next step
+            currentStepData.pieces.forEach((piece, i) => {
+                const nextPiece = nextStepData.pieces[i];
+
+                const offset = [
+                    interpolate(piece.offset[0], nextPiece.offset[0], progress),
+                    interpolate(piece.offset[1], nextPiece.offset[1], progress)
+                ];
+
+                const rotation = interpolate(piece.rotation, nextPiece.rotation, progress);
+
+                drawPiece(piece.points, piece.color, offset, rotation);
+            });
+
+            if (currentStepData.showCutLine) {
+                drawCutLine();
+            }
+
+            if (currentStepData.showSquareOutline) {
+                drawSquareOutline();
+            }
+
+            // Draw dimensions for original rectangle
+            if (step === 0) {
+                ctx.fillStyle = '#2c3e50';
+                ctx.font = 'bold 16px Arial';
+                ctx.fillText('9 cm', 4 * scale, -0.5 * scale);
+                ctx.fillText('4 cm', -1 * scale, 2 * scale);
+            }
+
+            ctx.restore();
+        }
+
+        function updateStateText() {
+            document.getElementById('stateText').textContent = steps[currentStep].name;
+        }
+
+        function nextStep() {
+            if (currentStep < steps.length - 1) {
+                animateTransition(currentStep, currentStep + 1);
+            }
+        }
+
+        function prevStep() {
+            if (currentStep > 0) {
+                animateTransition(currentStep, currentStep - 1);
+            }
+        }
+
+        function animateTransition(from, to) {
+            let progress = 0;
+            const duration = 1000 / speedMultiplier; // 1 second divided by speed
+            const startTime = performance.now();
+
+            function animate(currentTime) {
+                const elapsed = currentTime - startTime;
+                progress = Math.min(elapsed / duration, 1);
+
+                // Ease in-out
+                const eased = progress < 0.5
+                    ? 2 * progress * progress
+                    : 1 - Math.pow(-2 * progress + 2, 2) / 2;
+
+                render(from, eased);
+
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
+                } else {
+                    currentStep = to;
+                    updateStateText();
+                    updateButtons();
+                }
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        function reset() {
+            currentStep = 0;
+            animating = false;
+            if (animationId) {
+                clearInterval(animationId);
+                animationId = null;
+            }
+            document.getElementById('animateBtn').textContent = 'Auto Play';
+            render(currentStep);
+            updateStateText();
+            updateButtons();
+        }
+
+        function toggleAnimation() {
+            animating = !animating;
+
+            if (animating) {
+                document.getElementById('animateBtn').textContent = 'Stop';
+                playAnimation();
+            } else {
+                document.getElementById('animateBtn').textContent = 'Auto Play';
+                if (animationId) {
+                    clearInterval(animationId);
+                    animationId = null;
+                }
+            }
+        }
+
+        function playAnimation() {
+            const interval = 2000 / speedMultiplier; // 2 seconds per step divided by speed
+
+            animationId = setInterval(() => {
+                if (currentStep < steps.length - 1) {
+                    nextStep();
+                } else {
+                    // Reset and continue
+                    currentStep = -1;
+                    setTimeout(() => nextStep(), 100);
+                }
+            }, interval);
+        }
+
+        function updateButtons() {
+            document.getElementById('prevBtn').disabled = currentStep === 0;
+            document.getElementById('nextBtn').disabled = currentStep === steps.length - 1;
+        }
+
+        // Initial render
+        render(0);
+        updateStateText();
+        updateButtons();
+    </script>
+</body>
+</html>
