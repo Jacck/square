@@ -174,11 +174,12 @@
         </div>
 
         <div class="info-panel">
-            <h3>How It Works</h3>
+            <h3>How It Works - The Interlocking Puzzle</h3>
             <p><strong>Problem:</strong> Cut a 4 cm × 9 cm rectangle (area = 36 cm²) into exactly 2 pieces and rearrange them into a 6 cm × 6 cm square (area = 36 cm²).</p>
             <p><strong>The Cut:</strong> Make a stepped cut starting 6 cm from the left edge. Cut straight up 2 cm, turn left and cut across 2 cm, then turn up and cut 2 cm to the top edge.</p>
-            <p><strong>The Pieces:</strong> This creates a larger L-shaped piece on the left and a smaller stepped piece on the right.</p>
-            <p><strong>Assembly:</strong> Keep the L-shaped piece in position. Slide the stepped piece up and to the left so its protruding steps fit perfectly into the empty notches of the L-shaped piece, forming a perfect 6×6 square!</p>
+            <p><strong>Piece A (Left):</strong> The larger L-shaped piece (20 cm²) - 6 cm wide × 4 cm tall with a 2×2 cm notch cut out from the top-right corner.</p>
+            <p><strong>Piece B (Right):</strong> The smaller piece (16 cm²) with a 2×2 cm protrusion on its left side that will fit into Piece A's notch.</p>
+            <p><strong>The Interlocking Assembly:</strong> Keep Piece A stationary at the bottom-left. Slide Piece B upward and leftward so that its 2×2 cm protrusion fits exactly into the 2×2 cm notch of Piece A. When correctly assembled, Piece B fills the top portion of the square, and the two pieces interlock to form a perfect solid 6×6 cm square with no gaps!</p>
             <p><strong>Tip:</strong> Click "Next Step" to see the transformation, or use "Auto Play" for a continuous animation.</p>
         </div>
     </div>
@@ -202,19 +203,19 @@
             speedValue.textContent = speedMultiplier + 'x';
         });
 
-        // Define the two pieces with stepped cut
-        // Piece 1: L-shaped piece (left side)
-        const piece1 = {
+        // Define the two pieces with stepped cut for interlocking puzzle
+        // Piece A: L-shaped piece with a 2×2 notch (left side) - 20 cm²
+        const pieceA = {
             points: [[0, 0], [6, 0], [6, 2], [4, 2], [4, 4], [0, 4]],
             color: '#3498db',
-            label: 'Piece 1 (L-shaped)'
+            label: 'Piece A (6×4 with notch)'
         };
 
-        // Piece 2: Stepped piece (right side)
-        const piece2 = {
+        // Piece B: Piece with a 2×2 protrusion (right side) - 16 cm²
+        const pieceB = {
             points: [[6, 0], [9, 0], [9, 4], [4, 4], [4, 2], [6, 2]],
             color: '#e74c3c',
-            label: 'Piece 2 (Stepped)'
+            label: 'Piece B (with protrusion)'
         };
 
         const steps = [
@@ -238,32 +239,32 @@
                 description: 'Stepped cut: up 2cm, left 2cm, up 2cm'
             },
             {
-                name: 'Step 3: Separate the Pieces',
+                name: 'Step 3: Separate the Interlocking Pieces',
                 pieces: [
                     { points: [[0, 0], [6, 0], [6, 2], [4, 2], [4, 4], [0, 4]], color: '#3498db', offset: [0, 0], rotation: 0 },
                     { points: [[6, 0], [9, 0], [9, 4], [4, 4], [4, 2], [6, 2]], color: '#e74c3c', offset: [1.5, -0.5], rotation: 0 }
                 ],
                 showCutLine: false,
-                description: 'L-shaped piece (left) and stepped piece (right)'
+                description: 'Piece A with 2×2 notch (left) and Piece B with 2×2 protrusion (right)'
             },
             {
-                name: 'Step 4: Rotate and Position the Stepped Piece',
+                name: 'Step 4: Slide Piece B Upward and Leftward',
                 pieces: [
                     { points: [[0, 0], [6, 0], [6, 2], [4, 2], [4, 4], [0, 4]], color: '#3498db', offset: [0, 0], rotation: 0 },
-                    { points: [[6, 0], [9, 0], [9, 4], [4, 4], [4, 2], [6, 2]], color: '#e74c3c', offset: [-1.5, 3], rotation: 90 }
+                    { points: [[6, 0], [9, 0], [9, 4], [4, 4], [4, 2], [6, 2]], color: '#e74c3c', offset: [-2, 1], rotation: 0 }
                 ],
                 showCutLine: false,
-                description: 'Rotating and positioning the stepped piece'
+                description: 'Sliding Piece B to begin interlocking'
             },
             {
-                name: 'Step 5: Form the 6×6 cm Square',
+                name: 'Step 5: Perfect Interlocking 6×6 cm Square!',
                 pieces: [
                     { points: [[0, 0], [6, 0], [6, 2], [4, 2], [4, 4], [0, 4]], color: '#3498db', offset: [0, 0], rotation: 0 },
-                    { points: [[6, 0], [9, 0], [9, 4], [4, 4], [4, 2], [6, 2]], color: '#e74c3c', offset: [-0.67, 4], rotation: 180 }
+                    { points: [[6, 0], [9, 0], [9, 4], [4, 4], [4, 2], [6, 2]], color: '#e74c3c', offset: [-3, 2], rotation: 0 }
                 ],
                 showCutLine: false,
                 showSquareOutline: true,
-                description: 'Perfect 6×6 cm square (area = 36 cm²)!'
+                description: 'The 2×2 protrusion fits into the notch - Perfect 6×6 square!'
             }
         ];
 
