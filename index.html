@@ -247,19 +247,19 @@
                 description: 'L-shaped piece (left) and stepped piece (right)'
             },
             {
-                name: 'Step 4: Slide the Stepped Piece',
+                name: 'Step 4: Rotate and Position the Stepped Piece',
                 pieces: [
-                    { points: [[0, 0], [6, 0], [6, 2], [4, 2], [4, 4], [0, 4]], color: '#3498db', offset: [0, 1], rotation: 0 },
-                    { points: [[6, 0], [9, 0], [9, 4], [4, 4], [4, 2], [6, 2]], color: '#e74c3c', offset: [-2, 2.5], rotation: 0 }
+                    { points: [[0, 0], [6, 0], [6, 2], [4, 2], [4, 4], [0, 4]], color: '#3498db', offset: [0, 0], rotation: 0 },
+                    { points: [[6, 0], [9, 0], [9, 4], [4, 4], [4, 2], [6, 2]], color: '#e74c3c', offset: [-1.5, 3], rotation: 90 }
                 ],
                 showCutLine: false,
-                description: 'Slide the stepped piece up and to the left'
+                description: 'Rotating and positioning the stepped piece'
             },
             {
                 name: 'Step 5: Form the 6×6 cm Square',
                 pieces: [
-                    { points: [[0, 0], [6, 0], [6, 2], [4, 2], [4, 4], [0, 4]], color: '#3498db', offset: [0, 1], rotation: 0 },
-                    { points: [[6, 0], [9, 0], [9, 4], [4, 4], [4, 2], [6, 2]], color: '#e74c3c', offset: [-4, 3], rotation: 0 }
+                    { points: [[0, 0], [6, 0], [6, 2], [4, 2], [4, 4], [0, 4]], color: '#3498db', offset: [0, 0], rotation: 0 },
+                    { points: [[6, 0], [9, 0], [9, 4], [4, 4], [4, 2], [6, 2]], color: '#e74c3c', offset: [-0.67, 4], rotation: 180 }
                 ],
                 showCutLine: false,
                 showSquareOutline: true,
@@ -339,14 +339,14 @@
             ctx.strokeStyle = '#27ae60';
             ctx.lineWidth = 4;
             ctx.setLineDash([15, 8]);
-            ctx.strokeRect(0, 1 * scale, 6 * scale, 6 * scale);
+            ctx.strokeRect(0, 0, 6 * scale, 6 * scale);
             ctx.setLineDash([]);
 
             // Add dimension labels
             ctx.fillStyle = '#27ae60';
             ctx.font = 'bold 16px Arial';
-            ctx.fillText('6 cm', 2.5 * scale, 0.7 * scale);
-            ctx.fillText('6 cm', -0.8 * scale, 4 * scale);
+            ctx.fillText('6 cm', 2.5 * scale, -0.3 * scale);
+            ctx.fillText('6 cm', -0.8 * scale, 3 * scale);
 
             ctx.restore();
         }
